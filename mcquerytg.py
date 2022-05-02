@@ -11,9 +11,13 @@ bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
 whitelist = [555091019, 328508967, 615744908]
             #h4rmy      crinny      slamerr
-
+            
 @dp.message_handler(commands=['id'])
 async def welcome(message: types.Message):
+    now = datetime.now()
+    timelol = now.strftime("%H:%M:%S")
+    timelol = str(timelol)
+    print(f'[{timelol}] [@{message.from_user.username}] {message.from_user.first_name} id: [{str(message.chat.id)}')
     await message.reply("<code>" + str(message.chat.id) + "</code>", parse_mode="HTML")
 
 @dp.message_handler(commands=['start', 'help'])
@@ -29,32 +33,68 @@ async def checker(message):
     now = datetime.now()
     timelol = now.strftime("%H:%M:%S")
     timelol = str(timelol)
-    print(f'[{timelol}] [@{message.from_user.username}] {message.from_user.first_name} tried to get access')
+    print(f'[{timelol}] [@{message.from_user.username}] {message.from_user.first_name} access denied')
     await message.answer_photo("https://github.com/h4rmy/filehosting/blob/main/2.png?raw=true")
 
 @dp.message_handler(commands=['owner'])
 async def welcome(message: types.Message):
+    now = datetime.now()
+    timelol = now.strftime("%H:%M:%S")
+    timelol = str(timelol)
+    print(f'[{timelol}] [@{message.from_user.username}] {message.from_user.first_name} /owner')
     await message.reply("<b>@h4rmy</b>", parse_mode="HTML")
 
 @dp.message_handler(commands=['srv'])
 async def server(message: types.Message):
     args = message.get_args().split()
+    now = datetime.now()
+    timelol = now.strftime("%H:%M:%S")
+    timelol = str(timelol)
+    print(f'[{timelol}] [@{message.from_user.username}] {message.from_user.first_name} /srv {args}')
+
+
     json = requests.get(f'https://api.mcsrvstat.us/2/{args[0]}').json()
 
     hostname = json.get("hostname", "Not found")
+    software = json.get("software", "Vanilla")
     ip = json["ip"]
     version = json["version"]
-    software = json.get("software", "Vanilla")
-    motd0 = json["motd"]["clean"][0]
-    motd1 = json["motd"]["clean"][1]
-    motd = motd0 + "\n" + motd1
-    players = "\n - ".join(json["players"]["list"])
     p = json["players"]["online"]
     p1 = json["players"]["max"]
-    info = "\n".join(json["info"]["clean"])
     query = json["debug"]["query"]
+    online = json["online"]
 
-    await message.answer(f' <b> [Hostname]</b>: {hostname} [{p}/{p1}]\n<b> [IP]</b>: {ip}\n<b> [Version]</b>: {version}\n<b> [Core]</b>: {software}\n<b> [Query]</b>: {query}\n<b> [MOTD]</b>:\n{motd}\n<b> [Info]</b>:\n {info}\n<b> [Players]</b>: \n - {players}\n', parse_mode="HTML")
+    if len(json["motd"]["clean"]) == 1:
+        motd0 = json["motd"]["clean"]
+        motd = "".join(motd0)
+    else:
+        motd0 = json["motd"]["clean"][0]
+        motd1 = json["motd"]["clean"][1]
+        motd = motd0 + "\n" + motd1
+
+
+    if "players" not in json:
+        players = "Not found"
+    else:
+        if "list" not in "players":
+            players = "Not found"
+        else:
+            players = json["players"]["list"]
+
+    if "info" not in json:
+        info = "Not found"
+    else:
+        info = json["info"]["clean"]
+
+    await message.answer(f' <b> [Hostname]</b>: {hostname} [{p}/{p1}]\n' +
+                         f'<b> [IP]</b>: {ip}\n' +
+                         f'<b> [Version]</b>: {version}\n' +
+                         f'<b> [Core]</b>: {software}\n' +
+                         f'<b> [Query]</b>: {query}\n' +
+                         f'<b> [Online]</b>: {online}\n' +
+                         f'<b> [MOTD]</b>:\n{motd}\n' +
+                         f'<b> [Info]</b>:\n {info}\n' +
+                         f'<b> [Players]</b>: \n - {players}\n', parse_mode="HTML")
 
 
 @dp.message_handler(commands=['q'])
@@ -66,7 +106,7 @@ async def query(message: types.Message):
                 now = datetime.now()
                 timelol = now.strftime("%H:%M:%S")
                 timelol = str(timelol)
-                print(f'[{timelol}] [@{message.from_user.username}] {message.from_user.first_name} {args}')
+                print(f'[{timelol}] [@{message.from_user.username}] {message.from_user.first_name} /q {args}')
                 srv = JavaServer.lookup(args[0])
                 query = srv.query()
                 host = srv.address.host
@@ -76,13 +116,13 @@ async def query(message: types.Message):
                 names = "\n- ".join(query.players.names)
 
                 n = "\n"
-                await message.answer(f'<b>{host}:{port}</b> [{status.players.online}/{status.players.max}]' + n +
-                                     f'<b>Ping</b>: {latency}ms' + n +
-                                     f'<b>Ip</b>: {query.raw["hostip"]}' + n +
-                                     f'<b>Version</b>: {query.software.version}' + n +
-                                     f'<b>Brand</b>: {query.software.brand}' + n +
-                                     f'<b>Map</b>: {query.raw["map"]}' + n +
-                                     f'<b>Players online</b>:\n- {names}', parse_mode="HTML")
+                await message.answer(f'<b> [Hostname]: {host}:{port}</b> [{status.players.online}/{status.players.max}]' + n +
+                                     f'<b> [Ping</b>: {latency}ms' + n +
+                                     f'<b> [Ip</b>: {query.raw["hostip"]}' + n +
+                                     f'<b> [Version</b>: {query.software.version}' + n +
+                                     f'<b> [Brand</b>: {query.software.brand}' + n +
+                                     f'<b> [Map</b>: {query.raw["map"]}' + n +
+                                     f'<b> [Players online</b>:\n- {names}', parse_mode="HTML")
             except socket.timeout:
                 await message.answer_photo("https://github.com/h4rmy/filehosting/blob/main/3.png?raw=true")
         elif args[1] == "plugins":
@@ -90,7 +130,7 @@ async def query(message: types.Message):
                 now = datetime.now()
                 timelol = now.strftime("%H:%M:%S")
                 timelol = str(timelol)
-                print(f'[{timelol}] [@{message.from_user.username}] {message.from_user.first_name} {args}')
+                print(f'[{timelol}] [@{message.from_user.username}] {message.from_user.first_name} /q {args}')
                 srv = JavaServer.lookup(args[0])
                 query = srv.query()
                 rawplugins = query.software.plugins
